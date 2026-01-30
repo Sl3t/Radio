@@ -22,8 +22,8 @@ Application d'analyse de radiographies médicales par Intelligence Artificielle 
 
 ### Identifiants par défaut
 
-- **Utilisateur** : `admin`
-- **Mot de passe** : `admin`
+- **Utilisateur** : `Admin_RA`
+- **Mot de passe** : `Admin_RA`
 
 > ⚠️ Pensez à modifier le mot de passe dans la page Administration > Identifiants
 

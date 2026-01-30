@@ -14,8 +14,8 @@ const CONFIG = {
 
     // Default credentials
     DEFAULT_CREDENTIALS: {
-        username: 'admin',
-        password: 'admin'
+        username: 'Admin_RA',
+        password: 'Admin_RA'
     },
 
     // API endpoints
