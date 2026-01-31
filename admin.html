@@ -60,6 +60,16 @@
                         </svg>
                         Bibliothèque de Prompts
                     </button>
+                    <button class="nav-item" data-section="moodboard">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="13.5" cy="6.5" r="2.5"/>
+                            <circle cx="6" cy="12" r="2.5"/>
+                            <circle cx="18" cy="12" r="2.5"/>
+                            <circle cx="8" cy="18.5" r="2.5"/>
+                            <circle cx="16" cy="18.5" r="2.5"/>
+                        </svg>
+                        Mood Board
+                    </button>
                     <button class="nav-item" data-section="credentials">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -240,6 +250,137 @@
                     </div>
                 </div>
 
+                <!-- Mood Board Section -->
+                <div id="moodboardSection" class="admin-section">
+                    <div class="section-header">
+                        <h2>Mood Board</h2>
+                        <p>Personnalisez l'ambiance visuelle de l'application</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Thèmes prédéfinis</h3>
+                        <div class="theme-presets">
+                            <button class="theme-preset" data-theme="dark-blue">
+                                <div class="theme-preview dark-blue-preview"></div>
+                                <span>Bleu Nuit</span>
+                            </button>
+                            <button class="theme-preset" data-theme="dark-purple">
+                                <div class="theme-preview dark-purple-preview"></div>
+                                <span>Violet Profond</span>
+                            </button>
+                            <button class="theme-preset" data-theme="dark-green">
+                                <div class="theme-preview dark-green-preview"></div>
+                                <span>Vert Médical</span>
+                            </button>
+                            <button class="theme-preset" data-theme="dark-orange">
+                                <div class="theme-preview dark-orange-preview"></div>
+                                <span>Orange Chaleureux</span>
+                            </button>
+                            <button class="theme-preset" data-theme="dark-red">
+                                <div class="theme-preview dark-red-preview"></div>
+                                <span>Rouge Intense</span>
+                            </button>
+                            <button class="theme-preset" data-theme="dark-teal">
+                                <div class="theme-preview dark-teal-preview"></div>
+                                <span>Turquoise</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Personnalisation avancée</h3>
+                        <div class="color-grid">
+                            <div class="form-group">
+                                <label for="accentColor">Couleur d'accent principale</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="accentColor" value="#3b82f6">
+                                    <input type="text" id="accentColorText" value="#3b82f6" class="color-text">
+                                </div>
+                                <span class="input-hint">Boutons, liens, éléments actifs</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="accentHoverColor">Couleur d'accent au survol</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="accentHoverColor" value="#2563eb">
+                                    <input type="text" id="accentHoverColorText" value="#2563eb" class="color-text">
+                                </div>
+                                <span class="input-hint">État hover des boutons</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="bgPrimaryColor">Fond principal</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="bgPrimaryColor" value="#0a0a0b">
+                                    <input type="text" id="bgPrimaryColorText" value="#0a0a0b" class="color-text">
+                                </div>
+                                <span class="input-hint">Arrière-plan de l'application</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="bgSecondaryColor">Fond secondaire</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="bgSecondaryColor" value="#111113">
+                                    <input type="text" id="bgSecondaryColorText" value="#111113" class="color-text">
+                                </div>
+                                <span class="input-hint">Header, panneaux, cartes</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="borderColor">Couleur des bordures</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="borderColor" value="#27272a">
+                                    <input type="text" id="borderColorText" value="#27272a" class="color-text">
+                                </div>
+                                <span class="input-hint">Séparateurs, contours</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="textPrimaryColor">Texte principal</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="textPrimaryColor" value="#fafafa">
+                                    <input type="text" id="textPrimaryColorText" value="#fafafa" class="color-text">
+                                </div>
+                                <span class="input-hint">Titres et texte important</span>
+                            </div>
+                        </div>
+                        <div class="button-group" style="margin-top: 24px;">
+                            <button id="applyThemeBtn" class="btn btn-primary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Appliquer le thème
+                            </button>
+                            <button id="resetThemeBtn" class="btn btn-secondary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                    <path d="M3 3v5h5"/>
+                                </svg>
+                                Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Aperçu en direct</h3>
+                        <div class="theme-preview-box" id="themePreviewBox">
+                            <div class="preview-header">
+                                <div class="preview-logo"></div>
+                                <span>RadioAnalyzer</span>
+                            </div>
+                            <div class="preview-content">
+                                <div class="preview-sidebar">
+                                    <div class="preview-nav-item active"></div>
+                                    <div class="preview-nav-item"></div>
+                                    <div class="preview-nav-item"></div>
+                                </div>
+                                <div class="preview-main">
+                                    <div class="preview-card">
+                                        <div class="preview-text"></div>
+                                        <div class="preview-text short"></div>
+                                        <div class="preview-button"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Credentials Section -->
                 <div id="credentialsSection" class="admin-section">
                     <div class="section-header">
@@ -284,6 +425,7 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <script src="js/config.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/admin.js"></script>
 </body>

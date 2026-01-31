@@ -27,6 +27,7 @@ function initializeAdmin() {
     setupNavigation();
     setupApiSection();
     setupPromptsSection();
+    setupMoodBoardSection();
     setupCredentialsSection();
     loadCurrentConfig();
 }
@@ -150,6 +151,221 @@ function setupPromptsSection() {
 
     // Delete prompt
     document.getElementById('deletePromptBtn').addEventListener('click', deletePrompt);
+}
+
+/**
+ * Setup Mood Board section
+ */
+function setupMoodBoardSection() {
+    // Theme preset buttons
+    document.querySelectorAll('.theme-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const themeName = btn.dataset.theme;
+
+            // Apply preset theme
+            if (ThemeManager.applyPreset(themeName)) {
+                // Update active state
+                document.querySelectorAll('.theme-preset').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Update color inputs to reflect preset
+                updateColorInputsFromPreset(themeName);
+
+                showToast(`Thème "${THEME_PRESETS[themeName].name}" appliqué`, 'success');
+            }
+        });
+    });
+
+    // Color input synchronization (color picker <-> text input)
+    const colorInputPairs = [
+        ['accentColor', 'accentColorText', '--accent-primary'],
+        ['accentHoverColor', 'accentHoverColorText', '--accent-primary-hover'],
+        ['bgPrimaryColor', 'bgPrimaryColorText', '--bg-primary'],
+        ['bgSecondaryColor', 'bgSecondaryColorText', '--bg-secondary'],
+        ['borderColor', 'borderColorText', '--border-color'],
+        ['textPrimaryColor', 'textPrimaryColorText', '--text-primary']
+    ];
+
+    colorInputPairs.forEach(([colorId, textId, cssVar]) => {
+        const colorInput = document.getElementById(colorId);
+        const textInput = document.getElementById(textId);
+
+        if (colorInput && textInput) {
+            // Sync color to text
+            colorInput.addEventListener('input', () => {
+                textInput.value = colorInput.value;
+                updatePreviewLive();
+            });
+
+            // Sync text to color
+            textInput.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                    colorInput.value = textInput.value;
+                    updatePreviewLive();
+                }
+            });
+
+            textInput.addEventListener('blur', () => {
+                // Validate and fix on blur
+                if (!/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                    textInput.value = colorInput.value;
+                }
+            });
+        }
+    });
+
+    // Apply theme button
+    document.getElementById('applyThemeBtn').addEventListener('click', () => {
+        const colors = getColorsFromInputs();
+        ThemeManager.applyCustomTheme(colors);
+
+        // Clear preset active state
+        document.querySelectorAll('.theme-preset').forEach(b => b.classList.remove('active'));
+
+        showToast('Thème personnalisé appliqué', 'success');
+    });
+
+    // Reset theme button
+    document.getElementById('resetThemeBtn').addEventListener('click', () => {
+        ThemeManager.resetToDefault();
+
+        // Update UI
+        document.querySelectorAll('.theme-preset').forEach(b => {
+            b.classList.toggle('active', b.dataset.theme === 'dark-blue');
+        });
+        updateColorInputsFromPreset('dark-blue');
+
+        showToast('Thème réinitialisé', 'success');
+    });
+
+    // Load current theme state
+    loadCurrentThemeState();
+}
+
+/**
+ * Update color inputs from a preset
+ */
+function updateColorInputsFromPreset(presetName) {
+    const preset = THEME_PRESETS[presetName];
+    if (!preset) return;
+
+    const mappings = {
+        'accentColor': '--accent-primary',
+        'accentHoverColor': '--accent-primary-hover',
+        'bgPrimaryColor': '--bg-primary',
+        'bgSecondaryColor': '--bg-secondary',
+        'borderColor': '--border-color',
+        'textPrimaryColor': '--text-primary'
+    };
+
+    for (const [inputId, cssVar] of Object.entries(mappings)) {
+        const colorInput = document.getElementById(inputId);
+        const textInput = document.getElementById(inputId + 'Text');
+        const value = preset.colors[cssVar];
+
+        if (colorInput && textInput && value) {
+            colorInput.value = value;
+            textInput.value = value;
+        }
+    }
+}
+
+/**
+ * Get colors from inputs
+ */
+function getColorsFromInputs() {
+    return {
+        '--accent-primary': document.getElementById('accentColor').value,
+        '--accent-primary-hover': document.getElementById('accentHoverColor').value,
+        '--bg-primary': document.getElementById('bgPrimaryColor').value,
+        '--bg-secondary': document.getElementById('bgSecondaryColor').value,
+        '--bg-tertiary': adjustBrightness(document.getElementById('bgSecondaryColor').value, 10),
+        '--bg-hover': adjustBrightness(document.getElementById('bgSecondaryColor').value, 20),
+        '--bg-active': adjustBrightness(document.getElementById('bgSecondaryColor').value, 30),
+        '--border-color': document.getElementById('borderColor').value,
+        '--border-light': adjustBrightness(document.getElementById('borderColor').value, 20),
+        '--text-primary': document.getElementById('textPrimaryColor').value,
+        '--text-secondary': adjustBrightness(document.getElementById('textPrimaryColor').value, -35),
+        '--text-muted': adjustBrightness(document.getElementById('textPrimaryColor').value, -55)
+    };
+}
+
+/**
+ * Adjust color brightness
+ */
+function adjustBrightness(hex, percent) {
+    const num = parseInt(hex.slice(1), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+    const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amt));
+    const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+    return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+}
+
+/**
+ * Update preview in real-time
+ */
+function updatePreviewLive() {
+    const previewBox = document.getElementById('themePreviewBox');
+    if (!previewBox) return;
+
+    const colors = getColorsFromInputs();
+
+    previewBox.style.setProperty('--preview-bg-primary', colors['--bg-primary']);
+    previewBox.style.setProperty('--preview-bg-secondary', colors['--bg-secondary']);
+    previewBox.style.setProperty('--preview-border', colors['--border-color']);
+    previewBox.style.setProperty('--preview-accent', colors['--accent-primary']);
+    previewBox.style.setProperty('--preview-text', colors['--text-primary']);
+
+    // Apply to preview elements
+    previewBox.style.background = colors['--bg-primary'];
+    previewBox.querySelector('.preview-header').style.background = colors['--bg-secondary'];
+    previewBox.querySelector('.preview-header').style.borderBottomColor = colors['--border-color'];
+    previewBox.querySelector('.preview-logo').style.background = colors['--accent-primary'];
+    previewBox.querySelector('.preview-header span').style.color = colors['--text-primary'];
+    previewBox.querySelector('.preview-sidebar').style.background = colors['--bg-secondary'];
+    previewBox.querySelector('.preview-sidebar').style.borderRightColor = colors['--border-color'];
+    previewBox.querySelector('.preview-nav-item.active').style.background = colors['--accent-primary'];
+    previewBox.querySelector('.preview-card').style.background = colors['--bg-secondary'];
+    previewBox.querySelector('.preview-card').style.borderColor = colors['--border-color'];
+    previewBox.querySelector('.preview-button').style.background = colors['--accent-primary'];
+}
+
+/**
+ * Load current theme state into UI
+ */
+function loadCurrentThemeState() {
+    const currentPreset = ThemeManager.getCurrentPreset();
+    const currentColors = ThemeManager.getCurrentColors();
+
+    // Set active preset button
+    document.querySelectorAll('.theme-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === currentPreset);
+    });
+
+    // Set color inputs
+    const mappings = {
+        'accentColor': '--accent-primary',
+        'accentHoverColor': '--accent-primary-hover',
+        'bgPrimaryColor': '--bg-primary',
+        'bgSecondaryColor': '--bg-secondary',
+        'borderColor': '--border-color',
+        'textPrimaryColor': '--text-primary'
+    };
+
+    for (const [inputId, cssVar] of Object.entries(mappings)) {
+        const colorInput = document.getElementById(inputId);
+        const textInput = document.getElementById(inputId + 'Text');
+        const value = currentColors[cssVar];
+
+        if (colorInput && textInput && value) {
+            colorInput.value = value;
+            textInput.value = value;
+        }
+    }
+
+    // Update preview
+    setTimeout(updatePreviewLive, 100);
 }
 
 /**
