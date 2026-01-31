@@ -161,32 +161,39 @@ class ImageViewer {
 
             const box = anomaly.bounding_box;
 
-            // Convert normalized coordinates (0-1000) to pixel coordinates
-            const x = (box.xmin / 1000) * this.originalWidth;
-            const y = (box.ymin / 1000) * this.originalHeight;
-            const width = ((box.xmax - box.xmin) / 1000) * this.originalWidth;
-            const height = ((box.ymax - box.ymin) / 1000) * this.originalHeight;
+            // Use real pixel coordinates directly (no conversion)
+            const x = box.xmin;
+            const y = box.ymin;
+            const width = box.xmax - box.xmin;
+            const height = box.ymax - box.ymin;
 
-            // Draw semi-transparent fill
-            this.overlayCtx.fillStyle = this.hexToRgba(anomaly.color_hint, 0.2);
-            this.overlayCtx.fillRect(x, y, width, height);
+            // Calculate center and radius for circle
+            const centerX = x + width / 2;
+            const centerY = y + height / 2;
+            // Use the larger dimension to ensure the circle encompasses the zone
+            const radius = Math.max(width, height) / 2;
 
-            // Draw border
+            // Draw circle with 1px border, no fill
+            this.overlayCtx.beginPath();
+            this.overlayCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             this.overlayCtx.strokeStyle = anomaly.color_hint;
-            this.overlayCtx.lineWidth = 3;
-            this.overlayCtx.strokeRect(x, y, width, height);
+            this.overlayCtx.lineWidth = 1;
+            this.overlayCtx.stroke();
 
-            // Draw label background
+            // Draw label background (positioned above the circle)
             const label = anomaly.label;
             this.overlayCtx.font = 'bold 14px Inter, sans-serif';
             const textMetrics = this.overlayCtx.measureText(label);
             const labelHeight = 24;
             const labelPadding = 8;
 
+            const labelX = centerX - (textMetrics.width + labelPadding * 2) / 2;
+            const labelY = centerY - radius - labelHeight - 8;
+
             this.overlayCtx.fillStyle = anomaly.color_hint;
             this.overlayCtx.fillRect(
-                x,
-                y - labelHeight - 4,
+                labelX,
+                labelY,
                 textMetrics.width + labelPadding * 2,
                 labelHeight
             );
@@ -194,7 +201,7 @@ class ImageViewer {
             // Draw label text
             this.overlayCtx.fillStyle = '#FFFFFF';
             this.overlayCtx.textBaseline = 'middle';
-            this.overlayCtx.fillText(label, x + labelPadding, y - labelHeight / 2 - 4);
+            this.overlayCtx.fillText(label, labelX + labelPadding, labelY + labelHeight / 2);
         });
     }
 

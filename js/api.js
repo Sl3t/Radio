@@ -7,9 +7,11 @@ const API = {
      * Analyze image using configured AI provider
      * @param {string} imageBase64 - Base64 encoded image (without data URI prefix)
      * @param {string} mimeType - Image MIME type (image/jpeg or image/png)
+     * @param {number} imageWidth - Image width in pixels
+     * @param {number} imageHeight - Image height in pixels
      * @returns {Promise<Object>} Analysis result
      */
-    async analyzeImage(imageBase64, mimeType = 'image/jpeg') {
+    async analyzeImage(imageBase64, mimeType = 'image/jpeg', imageWidth = 0, imageHeight = 0) {
         const config = getApiConfig();
         if (!config) {
             throw new Error('Configuration API non trouvée');
@@ -20,10 +22,17 @@ const API = {
             throw new Error('Aucun prompt actif configuré');
         }
 
+        // Inject image dimensions into the prompt
+        let promptContent = prompt.content;
+        if (imageWidth > 0 && imageHeight > 0) {
+            const dimensionInfo = `\n\n[DIMENSIONS DE L'IMAGE : ${imageWidth} x ${imageHeight} pixels. Les coordonnées bounding_box doivent être exprimées en PIXELS RÉELS (pas de normalisation). xmin, ymin, xmax, ymax sont des valeurs entre 0 et ${imageWidth} (largeur) ou ${imageHeight} (hauteur).]`;
+            promptContent = promptContent + dimensionInfo;
+        }
+
         if (config.provider === 'openai') {
-            return this.analyzeWithOpenAI(imageBase64, mimeType, prompt.content, config);
+            return this.analyzeWithOpenAI(imageBase64, mimeType, promptContent, config);
         } else if (config.provider === 'gemini') {
-            return this.analyzeWithGemini(imageBase64, mimeType, prompt.content, config);
+            return this.analyzeWithGemini(imageBase64, mimeType, promptContent, config);
         } else {
             throw new Error('Fournisseur API non reconnu');
         }

@@ -275,7 +275,9 @@ function setupAnalysis() {
 
             analysisResult = await API.analyzeImage(
                 currentImageData.base64,
-                currentImageData.mimeType
+                currentImageData.mimeType,
+                currentImageData.width,
+                currentImageData.height
             );
 
             updateLoadingStatus('Traitement des résultats...');
