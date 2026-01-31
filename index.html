@@ -54,6 +54,14 @@
                 <h1>RadioAnalyzer</h1>
             </div>
             <div class="header-right">
+                <button id="debugBtn" class="btn btn-ghost" title="Afficher les informations de débogage">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h.01"/>
+                        <path d="M8.5 8.5a4 4 0 0 1 7 0c0 2-3 3-3 4.5"/>
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Debug
+                </button>
                 <button id="adminBtn" class="btn btn-ghost">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3"/>
@@ -202,6 +210,37 @@
                 <div class="spinner"></div>
                 <p>Analyse en cours...</p>
                 <span id="loadingStatus">Envoi de l'image à l'IA</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div id="debugPanel" class="debug-panel hidden">
+        <div class="debug-header">
+            <h3>Informations de débogage</h3>
+            <button id="closeDebugBtn" class="btn btn-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="debug-content">
+            <div class="debug-section">
+                <h4>Dimensions de l'image</h4>
+                <pre id="debugImageDimensions">Aucune image chargée</pre>
+            </div>
+            <div class="debug-section">
+                <h4>Prompt envoyé à l'IA</h4>
+                <pre id="debugPromptSent">Aucune analyse effectuée</pre>
+            </div>
+            <div class="debug-section">
+                <h4>Réponse brute de l'IA</h4>
+                <pre id="debugRawResponse">Aucune analyse effectuée</pre>
+            </div>
+            <div class="debug-section">
+                <h4>Coordonnées des anomalies (parsées)</h4>
+                <pre id="debugParsedCoords">Aucune analyse effectuée</pre>
             </div>
         </div>
     </div>

@@ -291,6 +291,9 @@ function setupAnalysis() {
             // Update report
             renderMedicalReport(analysisResult.medical_report);
 
+            // Update debug panel
+            updateDebugPanel();
+
             hideLoading();
             showToast('Analyse terminée', 'success');
 
@@ -298,6 +301,8 @@ function setupAnalysis() {
             hideLoading();
             console.error('Analysis error:', error);
             showToast(`Erreur: ${error.message}`, 'error');
+            // Still update debug panel on error
+            updateDebugPanel();
         }
     });
 
@@ -460,6 +465,66 @@ function setupNavigation() {
     document.getElementById('logoutBtn').addEventListener('click', () => {
         Auth.logout();
     });
+
+    // Debug button
+    document.getElementById('debugBtn').addEventListener('click', () => {
+        document.getElementById('debugPanel').classList.toggle('hidden');
+    });
+
+    // Close debug panel
+    document.getElementById('closeDebugBtn').addEventListener('click', () => {
+        document.getElementById('debugPanel').classList.add('hidden');
+    });
+}
+
+/**
+ * Update debug panel with latest info
+ */
+function updateDebugPanel() {
+    const debugInfo = API.lastDebugInfo;
+
+    if (!debugInfo) {
+        return;
+    }
+
+    // Image dimensions
+    const dimEl = document.getElementById('debugImageDimensions');
+    dimEl.textContent = `Largeur: ${debugInfo.imageWidth}px\nHauteur: ${debugInfo.imageHeight}px\nProvider: ${debugInfo.provider}\nModel: ${debugInfo.model}\nTimestamp: ${debugInfo.timestamp}`;
+
+    // Prompt sent
+    const promptEl = document.getElementById('debugPromptSent');
+    promptEl.textContent = debugInfo.promptSent || 'Non disponible';
+
+    // Raw response
+    const rawEl = document.getElementById('debugRawResponse');
+    rawEl.textContent = debugInfo.rawResponse || 'Non disponible';
+
+    // Parsed coordinates
+    const coordsEl = document.getElementById('debugParsedCoords');
+    if (debugInfo.parsedResponse?.image_analysis?.detected_anomalies) {
+        const anomalies = debugInfo.parsedResponse.image_analysis.detected_anomalies;
+        let coordsText = `Nombre d'anomalies: ${anomalies.length}\n\n`;
+
+        anomalies.forEach((a, i) => {
+            coordsText += `[${i + 1}] ${a.label}\n`;
+            coordsText += `    Bounding Box:\n`;
+            coordsText += `      xmin: ${a.bounding_box.xmin}\n`;
+            coordsText += `      ymin: ${a.bounding_box.ymin}\n`;
+            coordsText += `      xmax: ${a.bounding_box.xmax}\n`;
+            coordsText += `      ymax: ${a.bounding_box.ymax}\n`;
+            coordsText += `    Centre calculé:\n`;
+            const cx = a.bounding_box.xmin + (a.bounding_box.xmax - a.bounding_box.xmin) / 2;
+            const cy = a.bounding_box.ymin + (a.bounding_box.ymax - a.bounding_box.ymin) / 2;
+            const radius = Math.max(a.bounding_box.xmax - a.bounding_box.xmin, a.bounding_box.ymax - a.bounding_box.ymin) / 2;
+            coordsText += `      centerX: ${cx.toFixed(1)}\n`;
+            coordsText += `      centerY: ${cy.toFixed(1)}\n`;
+            coordsText += `      radius: ${radius.toFixed(1)}\n\n`;
+        });
+
+        coordsEl.textContent = coordsText;
+    } else {
+        coordsEl.textContent = 'Aucune anomalie parsée';
+    }
 }
 
 /**

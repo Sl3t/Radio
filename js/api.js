@@ -3,6 +3,9 @@
  */
 
 const API = {
+    // Debug storage
+    lastDebugInfo: null,
+
     /**
      * Analyze image using configured AI provider
      * @param {string} imageBase64 - Base64 encoded image (without data URI prefix)
@@ -28,6 +31,18 @@ const API = {
             const dimensionInfo = `\n\n[DIMENSIONS DE L'IMAGE : ${imageWidth} x ${imageHeight} pixels. Les coordonnées bounding_box doivent être exprimées en PIXELS RÉELS (pas de normalisation). xmin, ymin, xmax, ymax sont des valeurs entre 0 et ${imageWidth} (largeur) ou ${imageHeight} (hauteur).]`;
             promptContent = promptContent + dimensionInfo;
         }
+
+        // Initialize debug info
+        this.lastDebugInfo = {
+            timestamp: new Date().toISOString(),
+            provider: config.provider,
+            model: config.provider === 'openai' ? config.openaiModel : config.geminiModel,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            promptSent: promptContent,
+            rawResponse: null,
+            parsedResponse: null
+        };
 
         if (config.provider === 'openai') {
             return this.analyzeWithOpenAI(imageBase64, mimeType, promptContent, config);
@@ -150,6 +165,11 @@ const API = {
      * Parse AI response and extract JSON
      */
     parseResponse(content) {
+        // Store raw response in debug info
+        if (this.lastDebugInfo) {
+            this.lastDebugInfo.rawResponse = content;
+        }
+
         // Try to extract JSON from the response
         let jsonContent = content;
 
@@ -167,13 +187,19 @@ const API = {
 
         try {
             const parsed = JSON.parse(jsonContent.trim());
-            return this.validateAndNormalizeResponse(parsed);
+            const result = this.validateAndNormalizeResponse(parsed);
+
+            // Store parsed response in debug info
+            if (this.lastDebugInfo) {
+                this.lastDebugInfo.parsedResponse = result;
+            }
+
+            return result;
         } catch (e) {
             console.error('Failed to parse JSON:', e);
             console.log('Raw content:', content);
 
-            // Return a fallback structure with the raw content as report
-            return {
+            const fallback = {
                 image_analysis: {
                     target: 'unknown',
                     detected_anomalies: []
@@ -185,6 +211,14 @@ const API = {
                     recommendations: 'Veuillez réessayer l\'analyse'
                 }
             };
+
+            // Store fallback in debug info
+            if (this.lastDebugInfo) {
+                this.lastDebugInfo.parsedResponse = fallback;
+                this.lastDebugInfo.parseError = e.message;
+            }
+
+            return fallback;
         }
     },
 
